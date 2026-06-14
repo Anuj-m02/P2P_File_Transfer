@@ -6,6 +6,19 @@
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-WebSockets-009688?style=flat-square&logo=fastapi)
 ![No Server Storage](https://img.shields.io/badge/File%20Data-Never%20Touches%20Server-00ff88?style=flat-square)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=flat-square&logo=vercel)](https://p2p-file-transfer-six.vercel.app/)
+[![Backend](https://img.shields.io/badge/Backend-Railway-8B5CF6?style=flat-square&logo=railway)](https://p2pfiletransfer-production-8fff.up.railway.app/)
+
+---
+
+## Live Demo
+
+| | URL |
+|---|---|
+| **Frontend** | [https://p2p-file-transfer-six.vercel.app/](https://p2p-file-transfer-six.vercel.app/) |
+| **Backend status** | [https://p2pfiletransfer-production-8fff.up.railway.app/](https://p2pfiletransfer-production-8fff.up.railway.app/) |
+
+No setup required — open the frontend URL in two browser tabs (or share it with a friend) and start transferring files immediately.
 
 ---
 
@@ -71,26 +84,40 @@ P2P Web Share lets two browsers exchange files directly over a WebRTC DataChanne
 | File Integrity | Web Crypto API — `crypto.subtle.digest("SHA-256", ...)` |
 | Frontend | HTML5, CSS3, Vanilla JavaScript (zero frameworks) |
 | Signaling Server | Python 3.10+, FastAPI, WebSockets (`python-websockets`) |
+| Frontend Hosting | Vercel |
+| Backend Hosting | Railway |
 | Fonts | Orbitron, Share Tech Mono (Google Fonts) |
 
 ---
 
 ## Getting Started
 
-### Prerequisites
+### Option A — Use the live deployment (no setup needed)
+
+1. Open [https://p2p-file-transfer-six.vercel.app/](https://p2p-file-transfer-six.vercel.app/) in your browser
+2. Share the link with your peer — they open the same URL
+3. Follow the [Usage](#usage) steps below
+
+The frontend automatically connects to the Railway backend — nothing to configure.
+
+---
+
+### Option B — Run locally
+
+#### Prerequisites
 
 - Python 3.10 or newer
 - A modern browser (Chrome 90+, Firefox 90+, Edge 90+)
 - [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) VS Code extension **or** any static file server
 
-### 1 — Clone the repo
+#### 1 — Clone the repo
 
 ```bash
-git clone https://github.com/your-username/p2p-webshare.git
-cd p2p-webshare
+git clone https://github.com/Anuj-m02/P2P_File_Transfer.git
+cd P2P_File_Transfer
 ```
 
-### 2 — Start the signaling server
+#### 2 — Start the signaling server
 
 ```bash
 cd backend
@@ -113,11 +140,11 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 The signaling server is now running at `http://localhost:8000`.
 
-### 3 — Open the frontend
+#### 3 — Open the frontend
 
 Open `frontend/index.html` with **Live Server** (right-click → *Open with Live Server* in VS Code).
 
-> The WebSocket URL in `websocket.js` defaults to `ws://localhost:8000/ws` — no config needed for local use.
+> The WebSocket URL in `websocket.js` defaults to `ws://localhost:8000/ws` for local use. When deployed, it points to the Railway backend URL.
 
 ---
 
@@ -156,14 +183,43 @@ Open `frontend/index.html` with **Live Server** (right-click → *Open with Live
 
 ---
 
+## Deployment
+
+### Frontend — Vercel
+
+The `frontend/` folder is deployed as a static site on Vercel.
+
+- Live URL: [https://p2p-file-transfer-six.vercel.app/](https://p2p-file-transfer-six.vercel.app/)
+- Auto-deploys on every push to `main`
+- No build step — plain HTML/CSS/JS served directly
+
+### Backend — Railway
+
+The `backend/` folder runs as a Python/FastAPI service on Railway.
+
+- Live URL: [https://p2pfiletransfer-production-8fff.up.railway.app/](https://p2pfiletransfer-production-8fff.up.railway.app/)
+- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Auto-deploys on every push to `main`
+
+### Monitoring endpoints
+
+| Endpoint | Response |
+|---|---|
+| `GET /` | `{"status":"ok","active_connections":N,"active_rooms":N,"uptime":"...","version":"1.0.0"}` |
+| `GET /health` | `{"status":"healthy"}` |
+| `GET /stats` | `{"active_connections":N,"active_rooms":N,"uptime":"...","version":"1.0.0"}` |
+
+---
+
 ## Project Structure
 
 ```
-p2p-webshare/
+P2P_File_Transfer/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py               # FastAPI app — /ws WebSocket endpoint
-│   │   ├── websocket_manager.py  # Room registry, peer routing
+│   │   ├── main.py               # FastAPI app — HTTP endpoints + /ws WebSocket
+│   │   ├── websocket_manager.py  # Tracks active WebSocket connections
+│   │   ├── room_manager.py       # Room registry — create, join, peer routing
 │   │   └── config.py             # HOST, PORT, ALLOWED_ORIGINS from .env
 │   ├── requirements.txt
 │   └── .env.example              # Environment variable template
@@ -197,5 +253,8 @@ Copy `backend/.env.example` to `backend/.env` and adjust as needed:
 | `PORT` | `8000` | Port to listen on |
 | `ALLOWED_ORIGINS` | `http://localhost:5500,...` | CORS whitelist (comma-separated) |
 
+On Railway, `PORT` is injected automatically by the platform.
+
 ---
 
+##Build by Anuj Maurya
