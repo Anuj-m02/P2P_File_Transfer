@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,10 +15,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+APP_VERSION = "1.0.0"
+START_TIME  = time.time()   # recorded once when the process starts
+
 app = FastAPI(
     title="P2P Web Share",
     description="Signaling server — file data never passes through",
-    version="2.0.0",
+    version=APP_VERSION,
 )
 
 app.add_middleware(
@@ -32,9 +36,46 @@ manager      = ConnectionManager()
 room_manager = RoomManager()
 
 
+def format_uptime(seconds: float) -> str:
+    """Convert raw seconds into a human-readable uptime string.
+
+    Examples:  45s  |  5m 12s  |  2h 13m
+    """
+    total = int(seconds)
+    h = total // 3600
+    m = (total % 3600) // 60
+    s = total % 60
+    if h > 0:
+        return f"{h}h {m:02d}m"
+    if m > 0:
+        return f"{m}m {s:02d}s"
+    return f"{s}s"
+
+
 @app.get("/")
+async def root():
+    return {
+        "status":             "ok",
+        "active_connections": len(manager.active_connections),
+        "active_rooms":       len(room_manager.rooms),
+        "uptime":             format_uptime(time.time() - START_TIME),
+        "version":            APP_VERSION,
+    }
+
+
+@app.get("/health")
 async def health():
-    return {"status": "ok", "active_connections": len(manager.active_connections)}
+    return {"status": "healthy"}
+
+
+@app.get("/stats")
+async def stats():
+    return {
+        "active_connections": len(manager.active_connections),
+        "active_rooms":       len(room_manager.rooms),
+        "uptime":             format_uptime(time.time() - START_TIME),
+        "version":            APP_VERSION,
+    }
 
 
 @app.websocket("/ws")
