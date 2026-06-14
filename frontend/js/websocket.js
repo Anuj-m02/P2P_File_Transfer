@@ -10,7 +10,8 @@
 //
 // Uses window.ui and window.logToConsole (both defined by ui.js, which loads first).
 
-const WS_URL = "ws://localhost:8000/ws";
+const WS_URL = "wss://p2pfiletransfer-production-8fff.up.railway.app/ws";
+
 
 let socket = null;
 
