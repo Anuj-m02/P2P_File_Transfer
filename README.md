@@ -86,7 +86,7 @@ P2P Web Share lets two browsers exchange files directly over a WebRTC DataChanne
 | Signaling Server | Python 3.10+, FastAPI, WebSockets (`python-websockets`) |
 | Frontend Hosting | Vercel |
 | Backend Hosting | Railway |
-| Fonts | Orbitron, Share Tech Mono (Google Fonts) |
+
 
 ---
 
